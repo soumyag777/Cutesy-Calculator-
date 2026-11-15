@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Cutesy Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg1: #ffe4f1;
+    --bg2: #e6e4ff;
+    --card: #fffafc;
+    --screen: #fff0f6;
+    --ink: #5b4a6b;
+    --soft: #b8a7c9;
+    --num: #ffffff;
+    --op: #ffd6e8;
+    --op-ink: #d6488a;
+    --fn: #e3f4ff;
+    --fn-ink: #4a8bbd;
+    --eq: #ff8fbf;
+    --shadow: 0 6px 0 rgba(214, 72, 138, 0.15);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka', system-ui, sans-serif;
+    color: var(--ink);
+    background: linear-gradient(135deg, var(--bg1), var(--bg2));
+    overflow: hidden;
+  }
+  .sparkle {
+    position: fixed;
+    font-size: 18px;
+    opacity: 0.6;
+    animation: float 6s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-18px) rotate(20deg); }
+  }
+  .calc {
+    width: min(360px, 92vw);
+    background: var(--card);
+    border-radius: 36px;
+    padding: 22px;
+    box-shadow: 0 20px 50px rgba(150, 100, 180, 0.25);
+    position: relative;
+  }
+  .mascot {
+    width: 74px;
+    height: 60px;
+    margin: -58px auto 8px;
+    background: #ffc2dc;
+    border-radius: 50% 50% 44% 44%;
+    position: relative;
+    box-shadow: inset 0 -6px 0 rgba(214, 72, 138, 0.15);
+    transition: transform 0.2s;
+  }
+  .mascot.bounce { animation: bounce 0.5s; }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-12px) scale(1.05); }
+  }
+  .eye {
+    position: absolute;
+    top: 22px;
+    width: 9px;
+    height: 11px;
+    background: var(--ink);
+    border-radius: 50%;
+    animation: blink 4s infinite;
+  }
+  .eye.l { left: 20px; }
+  .eye.r { right: 20px; }
+  @keyframes blink {
+    0%, 92%, 100% { transform: scaleY(1); }
+    95% { transform: scaleY(0.1); }
+  }
+  .cheek {
+    position: absolute;
+    top: 34px;
+    width: 12px;
+    height: 7px;
+    background: #ff8fbf;
+    border-radius: 50%;
+    opacity: 0.6;
+  }
+  .cheek.l { left: 10px; }
+  .cheek.r { right: 10px; }
+  .mouth {
+    position: absolute;
+    top: 34px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 14px;
+    height: 7px;
+    border: 3px solid var(--ink);
+    border-top: none;
+    border-radius: 0 0 14px 14px;
+    transition: all 0.2s;
+  }
+  .mascot.happy .mouth { width: 20px; height: 10px; background: #ff6fa8; border-color: var(--ink); }
+  .mascot.shock .mouth { width: 10px; height: 10px; border: 3px solid var(--ink); border-radius: 50%; }
+  .title {
+    text-align: center;
+    font-size: 14px;
+    color: var(--soft);
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .screen {
+    background: var(--screen);
+    border-radius: 24px;
+    padding: 16px 20px;
+    text-align: right;
+    margin-bottom: 18px;
+    min-height: 104px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow: hidden;
+  }
+  .expr {
+    font-size: 16px;
+    color: var(--soft);
+    min-height: 22px;
+    word-break: break-all;
+  }
+  .result {
+    font-size: 42px;
+    font-weight: 600;
+    word-break: break-all;
+    line-height: 1.1;
+  }
+  .keys {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 24px;
+    font-weight: 500;
+    border: none;
+    border-radius: 22px;
+    height: 64px;
+    background: var(--num);
+    color: var(--ink);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: transform 0.08s, box-shadow 0.08s;
+  }
+  button:active, button.pressed {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 rgba(214, 72, 138, 0.15);
+  }
+  .op { background: var(--op); color: var(--op-ink); }
+  .fn { background: var(--fn); color: var(--fn-ink); font-size: 20px; }
+  .eq { background: var(--eq); color: #fff; }
+  .zero { grid-column: span 2; }
+  .footer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--soft);
+    margin-top: 16px;
+  }
+</style>
+</head>
+<body>
+
+<div class="sparkle" style="top:10%;left:12%">✨</div>
+<div class="sparkle" style="top:20%;right:14%;animation-delay:1s">🌸</div>
+<div class="sparkle" style="bottom:15%;left:18%;animation-delay:2s">💖</div>
+<div class="sparkle" style="bottom:22%;right:10%;animation-delay:3s">⭐</div>
+
+<div class="calc">
+  <div class="mascot" id="mascot">
+    <div class="eye l"></div><div class="eye r"></div>
+    <div class="cheek l"></div><div class="cheek r"></div>
+    <div class="mouth"></div>
+  </div>
+  <div class="title">✿ cutesy calc ✿</div>
+
+  <div class="screen">
+    <div class="expr" id="expr"></div>
+    <div class="result" id="result">0</div>
+  </div>
+
+  <div class="keys">
+    <button class="fn" data-action="clear">AC</button>
+    <button class="fn" data-action="back">⌫</button>
+    <button class="fn" data-action="percent">%</button>
+    <button class="op" data-op="/">÷</button>
+
+    <button data-num="7">7</button>
+    <button data-num="8">8</button>
+    <button data-num="9">9</button>
+    <button class="op" data-op="*">×</button>
+
+    <button data-num="4">4</button>
+    <button data-num="5">5</button>
+    <button data-num="6">6</button>
+    <button class="op" data-op="-">−</button>
+
+    <button data-num="1">1</button>
+    <button data-num="2">2</button>
+    <button data-num="3">3</button>
+    <button class="op" data-op="+">+</button>
+
+    <button class="zero" data-num="0">0</button>
+    <button data-num=".">.</button>
+    <button class="eq" data-action="equals">=</button>
+  </div>
+
+  <div class="footer">made with 💕</div>
+</div>
+
+<script>
+  const exprEl = document.getElementById('expr');
+  const resultEl = document.getElementById('result');
+  const mascot = document.getElementById('mascot');
+
+  let expr = '';
+  let justSolved = false;
+  const pretty = s => s.replace(/\*/g, '×').replace(/\//g, '÷').replace(/-/g, '−');
+  const isOp = c => '+-*/'.includes(c);
+
+  function mood(m) {
+    mascot.classList.remove('happy', 'shock', 'bounce');
+    void mascot.offsetWidth; // restart animation
+    if (m) mascot.classList.add(m, 'bounce');
+    else mascot.classList.add('bounce');
+  }
+
+  function render() {
+    resultEl.textContent = expr ? pretty(expr) : '0';
+  }
+
+  function lastNumber() {
+    const parts = expr.split(/[+\-*/]/);
+    return parts[parts.length - 1];
+  }
+
+  function addNum(n) {
+    if (justSolved) { expr = ''; exprEl.textContent = ''; justSolved = false; }
+    if (n === '.' && lastNumber().includes('.')) return;
+    if (n === '.' && (expr === '' || isOp(expr.slice(-1)))) n = '0.';
+    expr += n;
+    mood();
+    render();
+  }
+
+  function addOp(op) {
+    justSolved = false;
+    if (expr === '') { if (op === '-') expr = '-'; render(); return; }
+    if (isOp(expr.slice(-1))) expr = expr.slice(0, -1);
+    expr += op;
+    mood();
+    render();
+  }
+
+  function calculate() {
+    if (!expr || isOp(expr.slice(-1))) return;
+    // only digits, operators and dots ever get here, so this is safe
+    if (!/^[\d+\-*/.]+$/.test(expr)) return;
+    let val = Function('"use strict"; return (' + expr + ')')();
+    exprEl.textContent = pretty(expr) + ' =';
+    if (!isFinite(val)) {
+      resultEl.textContent = 'oopsie!';
+      expr = '';
+      mood('shock');
+      return;
+    }
+    val = parseFloat(val.toFixed(10));
+    expr = String(val);
+    justSolved = true;
+    render();
+    mood('happy');
+  }
+
+  function action(a) {
+    if (a === 'clear') { expr = ''; exprEl.textContent = ''; justSolved = false; render(); mood(); }
+    if (a === 'back') { expr = expr.slice(0, -1); justSolved = false; render(); }
+    if (a === 'percent') {
+      const num = lastNumber();
+      if (!num) return;
+      expr = expr.slice(0, expr.length - num.length) + String(parseFloat(num) / 100);
+      render();
+    }
+    if (a === 'equals') calculate();
+  }
+
+  document.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.num !== undefined) addNum(btn.dataset.num);
+      else if (btn.dataset.op) addOp(btn.dataset.op);
+      else action(btn.dataset.action);
+    });
+  });
+
+  // keyboard support (nice if you use a keyboard with your iPad)
+  document.addEventListener('keydown', e => {
+    const k = e.key;
+    if (/^[0-9.]$/.test(k)) addNum(k);
+    else if (isOp(k)) addOp(k);
+    else if (k === 'Enter' || k === '=') { e.preventDefault(); action('equals'); }
+    else if (k === 'Backspace') action('back');
+    else if (k === 'Escape') action('clear');
+    else if (k === '%') action('percent');
+  });
+</script>
+</body>
+</html>
